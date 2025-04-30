@@ -1,0 +1,6 @@
+__pycache__/
+venv/
+db.sqlite3
+.env
+.idea/
+bot_api/AI/embeddings_data/

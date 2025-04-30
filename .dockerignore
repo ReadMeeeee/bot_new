@@ -1,0 +1,9 @@
+__pycache__/
+venv/
+db.sqlite3
+.env
+.idea/
+*.iml
+AITrainer/
+embeddings_data/json_data/**
+embeddings_data/json_data/*
