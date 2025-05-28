@@ -38,8 +38,9 @@ def build_embedding_db(
 
     :param json_path: Путь к данным для перевода в эмбеддинги
     :param faiss_path: Путь для сохранения векторной базы
-    :param chunk_size: Размер чанка для "нарезания"
-    :param chunk_overlap: "Погрешность" для "нарезки"
+    :param chunk_size: Размер чанка для нарезания
+    :param chunk_overlap: Погрешность для нарезки
+
     :return: Векторная база
     """
     with open(json_path, "r", encoding="utf-8") as f:
@@ -52,7 +53,7 @@ def build_embedding_db(
         for section, text in entry.items():
             header = f"[{section.strip()}]\n"
 
-            # Шаг 1: разбиваем на параграфы
+            # Разбиваем на параграфы
             paragraphs = text.strip().split("\n\n")
             for para in paragraphs:
                 para = para.strip()
@@ -62,7 +63,7 @@ def build_embedding_db(
                 if len(words) <= chunk_size:
                     docs.append(Document(page_content=header + para))
                 else:
-                    # Шаг 2: группируем по предложениям
+                    # Группируем по предложениям
                     sentences = re.split(r'(?<=[.!?])\s+', para)
                     sent_chunks = []
                     current, curr_len = [], 0
@@ -77,7 +78,7 @@ def build_embedding_db(
                     if current:
                         sent_chunks.append(" ".join(current))
 
-                    # Шаг 3: для каждого sentence-chunk — либо взять, либо токен-чанк
+                    # Для каждого sentence-chunk - либо взять, либо токен-чанк
                     for sch in sent_chunks:
                         if len(sch.split()) <= chunk_size:
                             docs.append(Document(page_content=header + sch))

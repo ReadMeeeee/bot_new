@@ -1,2 +1,4 @@
-from .functions import handle_define
 from .models import AIModelAPI, AIModelLocal
+
+
+__all__ = ['AIModelAPI', 'AIModelLocal']

@@ -49,7 +49,7 @@ def make_keyboard(
     in_row: int = 2,
 ) -> InlineKeyboardMarkup:
     """
-    Фабрика по созданию клавиатуры builderом по разметке config
+    Фабрика по созданию клавиатуры builderом по разметке instructions
 
     :param prefix: Префикс клавиатуры - меню: "menu" или "help"
     :param section: Ключ подменю: "base", "group", "requests", "ai"

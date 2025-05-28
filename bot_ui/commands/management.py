@@ -72,8 +72,8 @@ async def cmd_create_group(message: types.Message):
         # chat_obj = await message.bot.get_chat(username)
         tg_chat_id = message.chat.id
 
-        from bot_api.Parsing import parse_schedule
-        path_to_yaml_cfg = "bot_api\Parsing\config.yaml"
+        from bot_api.parsing import parse_schedule
+        path_to_yaml_cfg = "bot_api/parsing/config.yaml"
 
         number = int(number)
         course = int(course)

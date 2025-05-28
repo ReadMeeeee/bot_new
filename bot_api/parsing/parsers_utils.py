@@ -26,7 +26,7 @@ async def clear_text(text: str, to_lower: bool = False) -> str:
     return text
 
 
-async def load_config(path="config.yaml"):
+async def load_config(path="instructions.yaml"):
     """
     Функция загрузки .yaml конфига
 

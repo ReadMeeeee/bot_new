@@ -62,7 +62,7 @@ class AIModelLocal:
 
 
     def get_response(self, message: str, _chat: list[dict[str, str]] = None, role: str = None, instruction: str = None,
-                     max_tokens: int = 50, temperature: float = 1.0,
+                     temperature: float = 1.0,
                      repetition_penalty: float = 1.0, no_repeat_ngram_size: int = 0,
                      sampling: bool = True):
         """
@@ -72,7 +72,6 @@ class AIModelLocal:
         :param _chat: Параметр - словарь, уже содержащий роль и инструкции (для внутриклассового пользования)
         :param role: Роль для ИИ
         :param instruction: Инструкция для обработки текста при помощи ИИ
-        :param max_tokens: Максимальное количество токенов в ответе (по умолчанию 50)
         :param temperature: Параметр, контроля случайности генерации. Выше - случайнее (по умолчанию 1.0)
         :param repetition_penalty: Коэффициент штрафа за повторение токенов (по умолчанию 1.0)
         :param no_repeat_ngram_size: Размер n-граммы, запрещающей повторы слов (по умолчанию 0)
@@ -92,7 +91,6 @@ class AIModelLocal:
         generated_ids = self.model.generate(
             model_inputs.input_ids,
             attention_mask=attention_mask,
-            max_new_tokens=max_tokens,
             temperature=temperature,
             repetition_penalty=repetition_penalty,
             no_repeat_ngram_size=no_repeat_ngram_size,

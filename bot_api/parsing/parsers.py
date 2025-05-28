@@ -1,5 +1,9 @@
-from bot_api.Parsing.parsers_utils import *
+from bot_api.parsing.parsers_utils import *
 import urllib.parse
+
+
+# TODO переделать через os
+PATH_TO_YAML = "C:\\Users\\Admin\\PycharmProjects\\TG_bot\\bot_api\\parsing\\config.yaml"
 
 
 # Парсинг информации/ новостей/ расписания
@@ -43,7 +47,7 @@ async def parse_info_data(path_to_yaml_cfg: str) -> list[str]:
     return total_data
 
 
-async def parse_news_data(path_to_yaml_cfg: str) -> list[dict]:
+async def parse_news_data(path_to_yaml_cfg: str = PATH_TO_YAML) -> list[dict]:
     """
     Парсит только первую страницу новостей из конфига и возвращает список новостей.
 
@@ -249,7 +253,7 @@ async def format_schedule(schedule, day=None):
 
 """
 async def main():
-    schedule = await parse_schedule(path_to_yaml_cfg='config.yaml',
+    schedule = await parse_schedule(path_to_yaml_cfg='instructions.yaml',
                                     group='ПМИ', number=1, course=4)
     print(schedule)
     schedule = await format_schedule(schedule)
