@@ -2,7 +2,7 @@ from aiogram import Router, types, F
 from aiogram.filters import Command, Filter
 # from aiogram.enums.chat_type import ChatType
 from config import API_DS, model_url, model_name
-from bot_api.Database.requests import get_group_field, get_group_by_tg_id
+from bot_api.Database.requests import get_group_field, get_group_by_tg_id, update_group_field
 from bot_api.Database.models import async_session
 
 from bot_api.AI import AIModelAPI
@@ -38,7 +38,7 @@ async def cmd_get_schedule(message: types.Message):
             'среда',
             'четверг',
             'пятница',
-            'суббота',
+            'суббота'
     }
 
     day = None
@@ -48,7 +48,7 @@ async def cmd_get_schedule(message: types.Message):
         _, day = args
         day = day.lower()
         if day not in days:
-            await message.answer("Укажите корректный день недели (понедельник - суббота)")
+            await message.answer("Укажите корректный день")
             return None
 
     async with async_session() as session:
@@ -85,7 +85,7 @@ async def cmd_get_homework(message: types.Message):
         homework = await get_group_field(session, message.chat.id, "homework")
 
     if homework is None:
-        homework = "Ближайших событий нет"
+        homework = "Актуальных задач нет"
 
     await message.answer(homework)
 
@@ -95,13 +95,71 @@ async def cmd_get_homework(message: types.Message):
     F.chat.type.in_({"group","supergroup"}),
     IsGroupCreated()
 )
-async def cmd_get_schedule(message: types.Message):
+async def cmd_get_news(message: types.Message):
     async with async_session() as session:
         path_to_yaml_cfg = "bot_api\\parsing\\config.yaml"
         news = await parse_format_news(path_to_yaml_cfg)
         news = str(news)
 
     await message.answer(news)
+
+
+@requests_router.message(
+    Command("upload_events"),
+    F.chat.type.in_({"group", "supergroup"}),
+    IsGroupCreated()
+)
+async def cmd_upload_events(message: types.Message):
+    """
+    Обновляет поле 'events' для текущей группы.
+    Использование: /upload_events <текст ближайших событий>
+    """
+    parts = message.text.split(" ", 1)
+    if len(parts) < 2 or not parts[1].strip():
+        await message.answer(
+            "Неверный формат. Использование:\n"
+            "/upload_events <текст ближайших событий>"
+        )
+        return
+
+    value = parts[1].strip()
+    async with async_session() as session:
+        result_msg = await update_group_field(
+            session,
+            group_tg_id=message.chat.id,
+            field="events",
+            value=value
+        )
+    await message.answer(result_msg)
+
+
+@requests_router.message(
+    Command("upload_hw"),
+    F.chat.type.in_({"group", "supergroup"}),
+    IsGroupCreated()
+)
+async def cmd_upload_hw(message: types.Message):
+    """
+    Обновляет поле 'homework' для текущей группы.
+    Использование: /upload_hw <текст домашнего задания>
+    """
+    parts = message.text.split(" ", 1)
+    if len(parts) < 2 or not parts[1].strip():
+        await message.answer(
+            "Неверный формат. Использование:\n"
+            "/upload_hw <текст домашнего задания>"
+        )
+        return
+
+    value = parts[1].strip()
+    async with async_session() as session:
+        result_msg = await update_group_field(
+            session,
+            group_tg_id=message.chat.id,
+            field="homework",
+            value=value
+        )
+    await message.answer(result_msg)
 
 
 from bot_api.AI.agent import Agent
@@ -123,7 +181,8 @@ async def cmd_bot(message: types.Message):
     result = await agent.run(user_text, message.chat.id)
 
     await message.answer(result)
-    """
+
+"""
 async def cmd_bot(message: types.Message):
 
     path_to_yaml_cfg = "bot_api/parsing/config.yaml"

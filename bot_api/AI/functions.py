@@ -20,7 +20,7 @@ async def get_schedule(ds: list[str], group_id: int):
     """
 
     week_days = ['понедельник','вторник','среда','четверг','пятница','суббота']
-    relative = {'завтра': 1, 'послезавтра': 2}
+    relative = {'сегодня': 0, 'завтра': 1, 'послезавтра': 2}
 
     def resolve_day(unresolved):
         """Преобразует токен в один из week_days или None."""

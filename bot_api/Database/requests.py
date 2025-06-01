@@ -248,7 +248,7 @@ async def is_leader_here(session: AsyncSession, group_tg_id: int) -> bool:
 # region Универсальные запросы: ДЗ/события/расписание
 async def get_group_field(session: AsyncSession, group_tg_id: int, field: str):
     """
-    Возвращает JSON-поле заданного имени из группы.
+    Возвращает поле заданного имени из группы.
 
     :param session: Асинхронная сессия SQLAlchemy
     :param group_tg_id: Telegram ID группы
@@ -264,7 +264,7 @@ async def get_group_field(session: AsyncSession, group_tg_id: int, field: str):
 
 async def update_group_field(session: AsyncSession,group_tg_id: int, field: str, value) -> str:
     """
-    Обновляет указанное JSON-поле группы.
+    Обновляет указанное поле группы.
 
     :param session: Асинхронная сессия SQLAlchemy
     :param group_tg_id: Telegram ID группы

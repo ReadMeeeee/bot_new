@@ -59,31 +59,17 @@ class Group(Base):
 
 # Таблица студентов
 class Student(Base):
-    """
-    Модель студента, привязанного к группе.
 
-    Поля:
-        id (int): Суррогатный ключ студента.
-        group_id (int): Внешний ключ на модель Group.
-        student_username (str): Уникальное имя пользователя Telegram (@username).
-        student_full_name (str): ФИО студента.
-        student_is_leader (bool): Флаг старосты группы.
-
-    Связи:
-        group: ссылка на объект Group, к которому принадлежит студент.
-    """
     __tablename__ = 'students'
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)           # Суррогатный ID студента
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    group_id: Mapped[int] = mapped_column(ForeignKey("groups.id"), nullable=False)
 
-    group_id: Mapped[int] = mapped_column(ForeignKey("groups.id"), nullable=False)  # Внешний ключ на группу
+    student_username: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    student_full_name: Mapped[str] = mapped_column(String, nullable=False)
+    student_is_leader: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
-    student_username: Mapped[str] = mapped_column(String, unique=True, nullable=False)      # @username студента
-    student_full_name: Mapped[str] = mapped_column(String, nullable=False)                  # ФИ студента
-    student_is_leader: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False) # Является ли старостой
-
-    group = relationship("Group", back_populates="students")                              # Связь с таблицей групп
-    # tasks = relationship("StudentTask", back_populates="student", cascade="all, delete-orphan")  # Связь с таблицей личных задач
+    group = relationship("Group", back_populates="students")
 
 
 '''

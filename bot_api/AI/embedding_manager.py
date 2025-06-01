@@ -116,7 +116,6 @@ async def get_best_match(db: FAISS, query: str) -> str:
 '''
 # Создание векторной базы и тест
 async def main():
-
     if os.path.exists(FAISS_PATH):
         print("Векторная база найдена\nЗагрузка ...")
         db = await load_embedding_db(FAISS_PATH)

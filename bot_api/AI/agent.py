@@ -3,6 +3,9 @@ import re
 import json
 import asyncio
 from pydantic import BaseModel
+from os import path
+
+from bot_api.AI.embedding_manager import get_best_match, load_embedding_db
 
 from bot_api.AI.models.class_ai_api import AIModelAPI
 from bot_api.AI.models.class_ai_local import AIModelLocal
@@ -11,7 +14,10 @@ from bot_api.AI.models.instructions_loader import load_instruction
 
 from bot_api.AI.functions import get_schedule, get_homework, get_news, get_events
 
-# ─── внешний, «чистый» реестр ─────────────────────────────────────────
+
+BASE_DIR = path.dirname(path.abspath(__file__))
+CACHE_DIR = path.join(BASE_DIR, "embeddings_data")
+FAISS_PATH = path.join(CACHE_DIR, "faiss_index")
 _FUNCTION_REGISTRY = {}
 
 def register(func=None, *, defaults=None):
@@ -122,7 +128,12 @@ class Agent:
     async def run(self, user_input: str, group_id: int) -> str:
         pre = self.instructions.to_pre_prompt()
         task = f"Запрос от пользователя:\n{user_input}"
-        request = LLMRequest(role_instructions=pre, task=task)
+
+        db = await load_embedding_db(FAISS_PATH)
+        best_match = await get_best_match(db, user_input)
+        match_if_need = f"Если запрос не подходит по инструкциям но хоть как то связан с учебой - вот дополнительная информация по нему:\n{best_match}"
+
+        request = LLMRequest(role_instructions=pre, task=task + match_if_need)
 
         raw = await self.model.get_response(request)
 
@@ -142,7 +153,7 @@ class Agent:
 
         return raw
 
-
+'''
 async def main():
     from config import deepseek_api
     path = "C:\\Users\\Admin\\PycharmProjects\\TG_bot\\bot_api\\AI\\models\\instructions\\instructions.json"
@@ -154,3 +165,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+'''
