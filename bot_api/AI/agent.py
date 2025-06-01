@@ -46,58 +46,48 @@ class FunctionCall(BaseModel):
 
     @classmethod
     def parse_response(cls, raw: str) -> "FunctionCall":
-        # 1) Удаляем Markdown-ограждения, если они есть
         stripped = raw.strip()
         if stripped.startswith('```') and stripped.endswith('```'):
             raw = cls._strip_fences(raw)
 
-        # 2) Извлекаем первый JSON-блок
         match = re.search(r"\{[\s\S]*\}", raw)
         if not match:
             raise ValueError("Не найден JSON-блок в ответе")
         json_str = match.group(0)
 
-        # 3) Парсим JSON
         try:
             payload = json.loads(json_str)
         except json.JSONDecodeError as e:
             raise ValueError(f"Невалидный JSON: {e}\n>>> {json_str}")
 
-        # 4) Достаём поле function_call
+
         fc = payload.get("function_call")
         if not isinstance(fc, dict):
             raise ValueError("В JSON нет 'function_call'")
 
-        # 5) Обработка списка аргументов vs словарь
         args = fc.get("arguments")
         if isinstance(args, list):
-            # Преобразуем простой список в объект параметров 'ds'
             fc["arguments"] = {"ds": args}
         elif not isinstance(args, dict):
             raise ValueError("Аргументы должны быть объектом или списком строк")
 
-        # 6) Конструируем Pydantic-модель
         return cls(**fc)
 
     async def run(self):
-        # 1) Получаем функцию и её дефолты из реестра
         entry = _FUNCTION_REGISTRY.get(self.name)
         if entry is None:
             raise ValueError(f"Функция {self.name!r} не зарегистрирована")
         func, defaults = entry
 
-        # 2) Подмешиваем дефолтные аргументы
         for key, val in defaults.items():
             self.arguments.setdefault(key, val)
 
-        # 3) Валидация аргументов по сигнатуре
         sig = inspect.signature(func)
         try:
             sig.bind(**self.arguments)
         except TypeError as e:
             raise ValueError(f"Неподходящие аргументы для {self.name!r}: {e}")
 
-        # 4) Вызов функции (await если корутина)
         result = func(**self.arguments)
         if inspect.iscoroutine(result):
             return await result
@@ -131,9 +121,13 @@ class Agent:
 
         db = await load_embedding_db(FAISS_PATH)
         best_match = await get_best_match(db, user_input)
-        match_if_need = f"Если запрос не подходит по инструкциям но хоть как то связан с учебой - вот дополнительная информация по нему:\n{best_match}"
+        matches = (f"Инструкция для дополнительная информация:\n"
+                   f"Если запрос не подходит по инструкциям но хоть как то связан со следующей "
+                   f"информацией - вот дополнительные данные по нему для генерации ответа:\n{best_match}"
+                   f"\n**ВАЖНО** вывод для ДАННОГО варианта твоего ответа НЕ НУЖНО форматировать.\n\n"
+                   f"Основная задача:\n")
 
-        request = LLMRequest(role_instructions=pre, task=task + match_if_need)
+        request = LLMRequest(role_instructions=pre, task=matches + task)
 
         raw = await self.model.get_response(request)
 
@@ -160,7 +154,7 @@ async def main():
     instructs = load_instruction(path, InstructionBlock)
     agent = Agent(deepseek_api, instructs)
 
-    out = await agent.run("скинь новости", group_id=12345)
+    out = await agent.run("скинь пожалуйста новости", group_id=12345)
     print(out)
 
 if __name__ == "__main__":

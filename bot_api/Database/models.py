@@ -72,6 +72,20 @@ class Student(Base):
     group = relationship("Group", back_populates="students")
 
 
+class homework(Base):
+    __tablename__ = 'homeworks'
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    group_id: Mapped[int] = mapped_column(ForeignKey("groups.id"), nullable=False)
+
+    subject: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    homework_data: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    expiration_date: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+
+    group = relationship("Group", back_populates="homeworks")
+
+
+
 '''
 # Таблица личных заданий (на будущее)
 class StudentTask(Base):
@@ -96,11 +110,5 @@ class Schedule(Base):
     __tablename__ = 'schedules'
     group = relationship("Group", back_populates="schedules")
 
-# Таблица домашнего задания (на будущее)
-class Homework(Base):
-    __tablename__ = 'homeworks'
-    group = relationship("Group", back_populates="homeworks")
-    
-    
 # Автообновляемая таблица новостей (на будущее)
 '''

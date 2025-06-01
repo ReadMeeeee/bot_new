@@ -109,7 +109,7 @@ async def get_best_match(db: FAISS, query: str) -> str:
     :param query: Строка для поиска совпадений
     :return: Наилучшее совпадение в векторной базе по строке
     """
-    results = db.similarity_search(query, k=1)
+    results = db.similarity_search(query, k=2)
     return results[0].page_content if results else "Ничего не найдено"
 
 

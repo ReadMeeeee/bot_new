@@ -1,12 +1,13 @@
 import datetime
 
-# from .embedding_manager import load_embedding_db, get_best_match
 from bot_api.AI.models import AIModelAPI
 from bot_api.AI.models.models import InstructionBlockNews, LLMRequest, PrePrompt
 from bot_api.AI.models.instructions_loader import load_instruction
 
 from bot_api.Database import async_session, get_group_field
 from bot_api.parsing import parse_news_data
+
+from bot_api.AI.embedding_manager import get_best_match, load_embedding_db
 
 
 # region Извлечение/ получение данных
@@ -152,6 +153,8 @@ async def get_news(model: AIModelAPI, path_to_instructions: str) -> str:
     relevant_news = await filter_news(model=model, instructions=instructions, news_list=news)
 
     return relevant_news
+
+
 # endregion
 
 '''
